@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Scanner;
 
 public class Main {
 	private static final String url = "jdbc:mysql://localhost:3306/db_nations";
@@ -11,6 +12,10 @@ public class Main {
 	private static final String pws = "";
 	
 	public static void main(String[] args) {
+		Scanner in = new Scanner(System.in);
+		System.out.println("filter your search by country's name: ");
+		
+		String search = in.nextLine();
 		
 		try (Connection con 
 			      = DriverManager.getConnection(url, user, pws)) {  
@@ -21,10 +26,12 @@ public class Main {
 					 +" ON countries.region_id = regions.region_id "
 					 +" JOIN continents"
 					 +" ON regions.continent_id = continents.continent_id "
-					 + " ORDER BY countries.name ASC"
+					 +" WHERE countries.name LIKE ? "
+					 +" ORDER BY countries.name ASC "
 					 +" ; ";
 			  
 			  try(PreparedStatement ps = con.prepareStatement(sql)){
+				  ps.setString(1, "%"+search+"%");
 			    try(ResultSet rs = ps.executeQuery()){
 			    	while(rs.next()) {
 			    		
@@ -34,9 +41,12 @@ public class Main {
 			    		String continentName = rs.getString(4);
 			    		
 			    		
-			    		System.out.println("country Name " + name +"country Id "+ id 
-			    						+ "region Name " + regionsName + "continent Name " 
-			    						+ continentName );
+			    		System.out.println("country Name: " + name + "\n" 
+			    						+ "country Id: " + id + "\n"
+			    						+ "region Name: " + regionsName +"\n"
+			    						+ "continent Name: " + continentName 
+			    						);
+			    						
 			    	}
 			    }
 			  }
