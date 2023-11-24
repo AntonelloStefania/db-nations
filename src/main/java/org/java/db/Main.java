@@ -16,6 +16,7 @@ public class Main {
 		System.out.print("filter your search by country's name: ");
 		
 		String search = in.nextLine();
+		System.out.println("\n");
 		
 		try (Connection con 
 			      = DriverManager.getConnection(url, user, pws)) {  
@@ -30,7 +31,7 @@ public class Main {
 					 +" ORDER BY countries.name ASC "
 					 +" ; ";
 			  
-			  final String SQL2 = "SELECT languages.language"
+			  final String SQL2 = "SELECT  languages.language"
 					  +" FROM countries"
 					  + " JOIN country_languages"
 					  +" ON countries.country_id = country_languages.country_id"
@@ -48,9 +49,22 @@ public class Main {
 					  +" LIMIT 1"
 					  +";";
 			  
+			  final String SQL4 = "SELECT countries.name"
+					  			+ " FROM countries"
+					  			+ " WHERE countries.country_id = ?"
+					  			+ ";";
+			  
 			  try(PreparedStatement ps = con.prepareStatement(SQL)){
 				  ps.setString(1, "%"+search+"%");
 			    try(ResultSet rs = ps.executeQuery()){
+			    	 int idLength = 10;
+			         int nameLength = 20;
+			         int regionLength = 20;
+			         int continentLength = 20;
+			         String format = " %-"+idLength+"s  %-"+nameLength+"s  %-"+regionLength+"s  %-"+continentLength+"s \n";
+			         
+			         System.out.format(" ID          COUNTRY                REGION             CONTINENT       \n");
+			         
 			    	while(rs.next()) {
 			    		
 			    		String name = rs.getString(1);
@@ -59,48 +73,62 @@ public class Main {
 			    		String continentName = rs.getString(4);
 			    		
 			    		
-			    		System.out.println( "[ country Id: " + id + " ]\n"
-			    						+ "country Name: " + name + "\n"
-			    						+ "region Name: " + regionsName +"\n"
-			    						+ "continent Name: " + continentName 
-			    						+ "\n------------------\n"
-			    						);
+			    		System.out.format(format, id, name, regionsName, continentName);
 
 			    	}
 			    	
 			    }
 			  }
-			  
-			  System.out.print("filter your search by nation's id");
+			  System.out.println("\n\n");
+			  System.out.print("filter your search by nation's id ");
 			  String strAnsId = in.nextLine();
 			  int ansId = Integer.valueOf(strAnsId);
 			  
-			  try(PreparedStatement ps = con.prepareStatement(SQL2)){
+			  try(PreparedStatement ps= con.prepareStatement(SQL4)){
 				  ps.setInt(1, ansId);
 				  try(ResultSet rs = ps.executeQuery()){
-					  System.out.println("spoken languages: \n" );
 					  while(rs.next()) {
-						  String language = rs.getString(1);
-						  
-						  System.out.println( language);
+						  String name = rs.getString(1);
+						  System.out.println("\nDetails for country: " + name);
 					  }
 				  }
 			  }
 			  
-			  System.out.println("\n--------------------------\n");
+			  try(PreparedStatement ps = con.prepareStatement(SQL2)){
+				  ps.setInt(1, ansId);
+				  try(ResultSet rs = ps.executeQuery()){
+					  
+					  System.out.print("spoken languages: " );
+					  while(rs.next()) {
+						  
+						  String language = rs.getString(1);
+						  if (!rs.isLast()) {
+
+	                          System.out.print(language + ", ");
+
+	                      } else {
+
+	                          System.out.print(language);
+	                      }
+					  }
+				  }
+			  }
+			  
+			 
 			  try(PreparedStatement ps = con.prepareStatement(SQL3)){
 				  ps.setInt(1, ansId);
 				  try(ResultSet rs = ps.executeQuery()){
-					 System.out.println("country stats: \n");
+					 System.out.println("\nMost recent stats");
 					  while(rs.next()) {
+						  
 						  int year = rs.getInt(1);
 						  String population = rs.getString(2);
 						  String gdp = rs.getString(3);
 						  
 						  
-						  System.out.println("year: " + year +"\n"
-								  			+ "population: " + population +"\n"
-								  			+ "gdp: " + gdp
+						  System.out.println("Year: " + year +"\n"
+								  			+ "Population: " + population +"\n"
+								  			+ "GDP: " + gdp
 								  );
 					  }
 				  }
