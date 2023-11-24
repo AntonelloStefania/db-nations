@@ -35,7 +35,7 @@ public class Main {
 			    		
 			    		
 			    		System.out.println("country Name " + name +"country Id "+ id 
-			    						+ "region Name" + regionsName + "continent Name " 
+			    						+ "region Name " + regionsName + "continent Name " 
 			    						+ continentName );
 			    	}
 			    }
